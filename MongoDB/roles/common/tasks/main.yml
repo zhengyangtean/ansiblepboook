@@ -1,0 +1,10 @@
+- name: Install NTP
+  yum: name={{ item }} state=installed
+  with_items:
+    - ntp
+
+- name: enable NTP
+  systemd:
+    name: ntpd
+    state: started
+    enabled: True

@@ -1,4 +1,68 @@
 ---
+# Updating host files 
+- name: Hostname | Updating Hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: Hostname | Add IP address of all hosts to all hosts
+  lineinfile:
+    dest: /etc/hosts
+    line: "{{ hostvars[item].ansible_ssh_host }} {{ item }}"
+    state: present
+  with_items: "{{ groups.all }}"
+
+## MongoDB Optimisation based on https://dzone.com/articles/tuning-linux-for-mongodb
+
+# Sysctl Optimisations
+- name: Systctl | Setting Dirty Ratio
+  sysctl: 
+    name: vm.dirty_ratio
+    value: 15
+    sysctl_set: yes
+    state: present
+
+- name: Systctl | Setting Dirty Background Ratio
+  sysctl: 
+    name: vm.dirty_ratio
+    value: 5
+    sysctl_set: yes
+    state: present
+
+- name: Systctl | Setting Swappiness
+  sysctl: 
+    name: vm.swappiness
+    value: 1
+    sysctl_set: yes
+    state: present
+
+- name: Systctl | net | Setting somaxconn
+  sysctl: 
+    name: net.core.somaxconn
+    value: 4096
+    sysctl_set: yes
+    state: present
+
+- name: Systctl | net | Setting tcp_fin_timeout
+  sysctl: 
+    name: net.ipv4.tcp_fin_timeout
+    value: 30
+    sysctl_set: yes
+    state: present
+
+- name: Systctl | net | Setting tcp_keepalive_time
+  sysctl: 
+    name: net.ipv4.tcp_keepalive_time
+    value: 120
+    sysctl_set: yes
+    state: present
+
+- name: Systctl | net | Setting tcp_max_syn_backlog
+  sysctl: 
+    name: net.ipv4.tcp_max_syn_backlog
+    value: 4096
+    sysctl_set: yes
+    state: present
+
 # Transparent Huge Pages Optimization
 - name: THP | Copying THP config
   template: 
@@ -46,20 +110,13 @@
     owner: root
     group: root
 
-- name: Swappiness | setting Swappiness
-  sysctl: 
-    name: vm.swappiness
-    value: 1
-    sysctl_set: yes
-    state: present
-
-- name: Install Yum packages
+- name: Yum | Install Yum packages
   yum: name={{ item }} state=installed
   with_items:
     - ntp # Network Time Protocol Optimization
     - numactl
 
-- name: enable NTP
+- name: Yum | Enable NTP
   systemd:
     name: ntpd
     state: started

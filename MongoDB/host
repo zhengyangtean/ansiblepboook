@@ -1,13 +1,13 @@
 [servers]
-node1.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=13.229.73.86
-node2.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=13.229.84.131
-node3.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=13.229.207.180 
-node4.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=13.229.209.21 
-node5.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=13.229.250.167
-node6.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=13.250.95.229 
-node7.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=13.250.108.66
-node8.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=18.136.124.204
-node9.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=52.77.230.54  
-node10.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=54.169.174.244 
-node11.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=54.251.153.27 
-node12.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=54.254.162.203 
+node1.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=3.0.78.230
+node2.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=13.250.35.251
+node3.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=13.250.43.212
+node4.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=13.250.99.97
+node5.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=18.136.120.156
+node6.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=18.136.206.164
+node7.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=18.136.210.28
+node8.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=52.221.187.215
+node9.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=54.179.183.193 
+node10.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=54.254.189.46 
+node11.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=54.255.180.110
+node12.mongodb ansible_ssh_user=ec2-user  ansible_ssh_host=54.255.237.1

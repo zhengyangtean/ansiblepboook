@@ -1,0 +1,20 @@
+- name: Create a 2048-bit SSH key for user mongodb in ~mongodb/.ssh/id_rsa
+  user:
+    name: mongodb
+    generate_ssh_key: yes
+    ssh_key_bits: 2048
+    ssh_key_file: .ssh/id_rsa
+
+- name: Creates Mongodb directory
+  file:
+    path: /opt/MongoDB/
+    state: directory
+    owner: mongodb
+    group: mongodb
+    recurse: yes
+
+- name: Extract MongoDB 4.0.2 into server
+  unarchive:
+    src: mongodb-linux-x86_64-rhel70-4.0.2.tgz
+    dest: /opt/MongoDB/
+    owner: mongodb

@@ -1,7 +1,63 @@
-- name: Install NTP
+---
+# Transparent Huge Pages Optimization
+- name: THP | Copying THP config
+  template: 
+    src: "disable-transparent-hugepages.j2"
+    dest: "/etc/init.d/disable-transparent-hugepages"
+    owner: root
+    group: root
+
+- name: THP | Disabling THP
+  service:
+    name: "{{ item }}"
+    enabled: yes
+  with_items:
+    - disable-transparent-hugepages
+
+- name: THP | Creates tuned profile directory
+  file:
+    path: "/etc/tuned/no-thp"
+    state: directory
+    owner: root
+    group: root
+
+- name: THP | Copying tuned config
+  template: 
+    src: "tuned.conf.j2"
+    dest: "/etc/tuned/no-thp/tuned.conf"
+    owner: root
+    group: root
+
+# idempotent implementation using folder named "activated" as flag to activate tuned
+- name: THP | no-thp tuned conf activated?
+  stat:
+    path: /etc/tuned/no-thp/activated
+  register: nothp_activated
+
+- name: THP | activating tuned conf
+  command: tuned-adm profile no-thp
+  when: nothp_activated.stat.exists == False
+
+- name: THP | Creates tuned profile directory
+  when: nothp_activated.stat.exists == False
+  file:
+    path: /etc/tuned/no-thp/activated
+    state: directory
+    owner: root
+    group: root
+
+- name: Swappiness | setting Swappiness
+  sysctl: 
+    name: vm.swappiness
+    value: 1
+    sysctl_set: yes
+    state: present
+
+- name: Install Yum packages
   yum: name={{ item }} state=installed
   with_items:
-    - ntp
+    - ntp # Network Time Protocol Optimization
+    - numactl
 
 - name: enable NTP
   systemd:

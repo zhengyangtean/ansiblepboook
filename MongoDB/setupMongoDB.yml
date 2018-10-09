@@ -1,5 +1,7 @@
 ---
+# Written for Centos/Redhat 7.5
 - hosts: all
   become: yes
   roles:
     - common
+    - mongoServer

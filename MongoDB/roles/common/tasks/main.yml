@@ -115,9 +115,13 @@
   with_items:
     - ntp # Network Time Protocol Optimization
     - numactl
+    - firewalld
 
-- name: Yum | Enable NTP
+- name: Yum | Enable packages
   systemd:
-    name: ntpd
+    name: "{{ item }}"
     state: started
     enabled: True
+  with_items:
+    - ntpd
+    - firewalld

@@ -1,0 +1,6 @@
+---
+# Written for Centos/Redhat 7.4
+- hosts: all
+  roles:
+    - common
+    # - clouderaManager

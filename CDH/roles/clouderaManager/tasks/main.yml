@@ -1,0 +1,44 @@
+- name: Creating User | Create a 2048-bit SSH key for user mongodb in ~mongodb/.ssh/id_rsa
+  user:
+    name: mongodb
+    generate_ssh_key: yes
+    ssh_key_bits: 2048
+    ssh_key_file: .ssh/id_rsa
+
+- name: Creating File Structure | Creates Mongodb directory
+  file:
+    path: /opt/MongoDB/
+    state: directory
+    owner: mongodb
+    group: mongodb
+    recurse: yes
+
+- name: Extracting MongoDB | Extract MongoDB 4.0.2 into server
+  unarchive:
+    src: mongodb-linux-x86_64-rhel70-4.0.2.tgz
+    dest: /opt/MongoDB/
+    owner: mongodb
+
+- name: Firewalld | Open up ports for MongoDB mongos
+  firewalld:
+    source: "{{ hostvars[item].ansible_ssh_host }}"
+    port: 27017/tcp
+    permanent: true
+    state: enabled
+  with_items: "{{ groups.all }}"
+
+- name: Firewalld | Open up ports for MongoDB shardsvr
+  firewalld:
+    source: "{{ hostvars[item].ansible_ssh_host }}"
+    port: 27018/tcp
+    permanent: true
+    state: enabled
+  with_items: "{{ groups.all }}"
+
+- name: Firewalld | Open up ports for MongoDB configsvr
+  firewalld:
+    source: "{{ hostvars[item].ansible_ssh_host }}"
+    port: 27019/tcp
+    permanent: true
+    state: enabled
+  with_items: "{{ groups.all }}"

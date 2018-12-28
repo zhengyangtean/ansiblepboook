@@ -3,4 +3,7 @@
 - hosts: all
   roles:
     - common
-    # - clouderaManager
+
+- hosts: cm
+  roles:
+    - postgresql

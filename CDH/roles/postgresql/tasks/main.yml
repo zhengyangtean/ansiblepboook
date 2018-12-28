@@ -1,0 +1,31 @@
+- name: Yum | Install Yum packages
+  yum:
+    name:
+      - postgresql-server 
+      - postgresql-contrib
+
+# idempotent implementation using folder named "activated" as flag to init postgres
+- name: postgresql | postgresql init-ed?
+  stat:
+    path: /etc/ansibleFlags/posgresqlInit
+  register: postgresql_init
+
+- name: postgresql | postgresql init
+  command: postgresql-setup initdb
+  when: postgresql_init.stat.exists == False
+
+- name: THP | Creates tuned profile directory
+  when: postgresql_init.stat.exists == False
+  file:
+    path: /etc/ansibleFlags/posgresqlInit
+    state: directory
+    owner: root
+    group: root
+
+- name: Systemd | Enable packagesname
+  systemd:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  with_items:
+    - postgresql

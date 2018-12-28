@@ -12,20 +12,20 @@
   with_items: "{{ groups.all }}"
 
 
-# Sysctl Optimisations
-- name: Systctl | Setting Dirty Ratio
-  sysctl: 
-    name: vm.dirty_ratio
-    value: 15
-    sysctl_set: yes
-    state: present
+# # Sysctl Optimisations
+# - name: Systctl | Setting Dirty Ratio
+#   sysctl: 
+#     name: vm.dirty_ratio
+#     value: 15
+#     sysctl_set: yes
+#     state: present
 
-- name: Systctl | Setting Dirty Background Ratio
-  sysctl: 
-    name: vm.dirty_ratio
-    value: 5
-    sysctl_set: yes
-    state: present
+# - name: Systctl | Setting Dirty Background Ratio
+#   sysctl: 
+#     name: vm.dirty_ratio
+#     value: 5
+#     sysctl_set: yes
+#     state: present
 
 - name: Systctl | Setting Swappiness
   sysctl: 
@@ -94,7 +94,7 @@
 # idempotent implementation using folder named "activated" as flag to activate tuned
 - name: THP | no-thp tuned conf activated?
   stat:
-    path: /etc/tuned/no-thp/activated
+    path: /etc/ansibleFlags/noTHPactivated
   register: nothp_activated
 
 - name: THP | activating tuned conf
@@ -104,7 +104,7 @@
 - name: THP | Creates tuned profile directory
   when: nothp_activated.stat.exists == False
   file:
-    path: /etc/tuned/no-thp/activated
+    path: /etc/ansibleFlags/noTHPactivated
     state: directory
     owner: root
     group: root
@@ -116,15 +116,28 @@
       - numactl
       - firewalld
 
-- name: Systemd | Enable packages
+- name: Systemd | Enable packagesname
   systemd:
     name: "{{ item }}"
     state: started
-    enabled: True
+    enabled: yes
   with_items:
     - ntpd
+
+- name: Systemd | Disable packages
+  systemd:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+  with_items:
     - firewalld
 
-- name: set timezone to Asia/Singapore
+- name: Timezone | Set to Asia/Singapore
   timezone:
     name: Asia/Singapore
+
+- name: SELINUX | Set to permissive 
+  selinux:
+    policy: targeted
+    state: permissive
+

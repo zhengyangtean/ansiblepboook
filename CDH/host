@@ -5,3 +5,6 @@ node3.cdh ansible_ssh_user=root  ansible_ssh_host=10.0.2.13
 node4.cdh ansible_ssh_user=root  ansible_ssh_host=10.0.2.14
 node5.cdh ansible_ssh_user=root  ansible_ssh_host=10.0.2.15
 node6.cdh ansible_ssh_user=root  ansible_ssh_host=10.0.2.16
+
+[cm]
+node1.cdh ansible_ssh_user=root  ansible_ssh_host=10.0.2.11

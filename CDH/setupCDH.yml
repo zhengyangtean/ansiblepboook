@@ -7,3 +7,4 @@
 - hosts: cm
   roles:
     - postgresql
+    - clouderaManager

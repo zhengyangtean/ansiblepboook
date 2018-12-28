@@ -7,20 +7,46 @@
 # idempotent implementation using folder named "activated" as flag to init postgres
 - name: postgresql | postgresql init-ed?
   stat:
-    path: /etc/ansibleFlags/posgresqlInit
+    path: /etc/ansibleFlags/postgresql_init
   register: postgresql_init
 
-- name: postgresql | postgresql init
-  command: postgresql-setup initdb
+- name: postgresql | set LC_ALL
+  command: echo 'LC_ALL="en_US.UTF-8"' >> /etc/locale.conf
   when: postgresql_init.stat.exists == False
 
-- name: THP | Creates tuned profile directory
+- name: postgresql | postgresql init db
+  command: sudo su -l postgres -c "postgresql-setup initdb"
+  when: postgresql_init.stat.exists == False
+
+- lineinfile:
+    path: /var/lib/pgsql/data/pg_hba.conf
+    insertbefore: 'host    all             all             127.0.0.1/32            ident'
+    line: 'host    all             all             127.0.0.1/32            md5'
+    create: yes
+
+- lineinfile:
+    path: /var/lib/pgsql/data/postgresql.conf
+    line: "listen_addresses = '*'"
+    create: yes
+
+
+- name: restart service postgresql on centos
+  when: postgresql_init.stat.exists == False
+  systemd:
+    state: restarted
+    name: postgresql
+
+
+
+- name: THP | Creates postgresql_initdirectory
   when: postgresql_init.stat.exists == False
   file:
-    path: /etc/ansibleFlags/posgresqlInit
+    path: /etc/ansibleFlags/postgresql_init
     state: directory
     owner: root
     group: root
+
+
 
 - name: Systemd | Enable packagesname
   systemd:
@@ -29,3 +55,4 @@
     enabled: yes
   with_items:
     - postgresql
+

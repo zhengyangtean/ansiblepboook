@@ -1,44 +1,35 @@
-- name: Creating User | Create a 2048-bit SSH key for user mongodb in ~mongodb/.ssh/id_rsa
-  user:
-    name: mongodb
-    generate_ssh_key: yes
-    ssh_key_bits: 2048
-    ssh_key_file: .ssh/id_rsa
+- name: Download Cloudera Repo
+  get_url:
+    url: https://archive.cloudera.com/cm6/6.1.0/redhat7/yum/cloudera-manager.repo
+    dest: /etc/yum.repos.d/
 
-- name: Creating File Structure | Creates Mongodb directory
+- rpm_key:
+    state: present
+    key: https://archive.cloudera.com/cm6/6.1.0/redhat7/yum/RPM-GPG-KEY-cloudera
+
+- name: Yum | Install Yum packages
+  yum:
+    name:
+      - oracle-j2sdk1.8
+      - cloudera-manager-daemons 
+      - cloudera-manager-agent 
+      - cloudera-manager-server
+
+
+# idempotent implementation using folder named "activated" as flag to auto tls
+- name: autotls | autotls?
+  stat:
+    path: /etc/ansibleFlags/autotls
+  register: autotls
+
+- name: autotls | autotls init
+  command: sudo JAVA_HOME=/usr/java/jdk1.8.0_141-cloudera /opt/cloudera/cm-agent/bin/certmanager setup --configure-services
+  when: autotls.stat.exists == False
+
+- name: THP | Creates tuned profile directory
+  when: autotls.stat.exists == False
   file:
-    path: /opt/MongoDB/
+    path: /etc/ansibleFlags/autotls
     state: directory
-    owner: mongodb
-    group: mongodb
-    recurse: yes
-
-- name: Extracting MongoDB | Extract MongoDB 4.0.2 into server
-  unarchive:
-    src: mongodb-linux-x86_64-rhel70-4.0.2.tgz
-    dest: /opt/MongoDB/
-    owner: mongodb
-
-- name: Firewalld | Open up ports for MongoDB mongos
-  firewalld:
-    source: "{{ hostvars[item].ansible_ssh_host }}"
-    port: 27017/tcp
-    permanent: true
-    state: enabled
-  with_items: "{{ groups.all }}"
-
-- name: Firewalld | Open up ports for MongoDB shardsvr
-  firewalld:
-    source: "{{ hostvars[item].ansible_ssh_host }}"
-    port: 27018/tcp
-    permanent: true
-    state: enabled
-  with_items: "{{ groups.all }}"
-
-- name: Firewalld | Open up ports for MongoDB configsvr
-  firewalld:
-    source: "{{ hostvars[item].ansible_ssh_host }}"
-    port: 27019/tcp
-    permanent: true
-    state: enabled
-  with_items: "{{ groups.all }}"
+    owner: root
+    group: root

@@ -1,0 +1,21 @@
+- name: Download Cloudera Repo
+  get_url:
+    url: https://archive.cloudera.com/cm6/6.1.0/redhat7/yum/cloudera-manager.repo
+    dest: /etc/yum.repos.d/
+
+- rpm_key:
+    state: present
+    key: https://archive.cloudera.com/cm6/6.1.0/redhat7/yum/RPM-GPG-KEY-cloudera
+
+- name: Yum | Install Yum packages
+  yum:
+    name:
+      - oracle-j2sdk1.8
+      - cloudera-manager-daemons 
+      - cloudera-manager-server
+      - cloudera-manager-agent 
+
+- lineinfile:
+    path: vim /etc/cloudera-scm-agent/config.ini
+    regexp: 'use_tls=0'
+    line: 'use_tls=1'

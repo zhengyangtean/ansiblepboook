@@ -12,25 +12,31 @@
     name:
       - oracle-j2sdk1.8
       - cloudera-manager-daemons 
-      - cloudera-manager-agent 
       - cloudera-manager-server
 
 
 # idempotent implementation using folder named "activated" as flag to auto tls
-- name: autotls | autotls?
+- name: scm_prepare_database | scm_prepare_database?
   stat:
-    path: /etc/ansibleFlags/autotls
-  register: autotls
+    path: /etc/ansibleFlags/scm_prepare_database
+  register: scm_prepare_database
 
-- name: autotls | autotls init
+- name: scm_prepare_database | scm_prepare_database init
+  command: 'echo "scm" | sudo /opt/cloudera/cm/schema/scm_prepare_database.sh postgresql scm scm'
+  when: scm_prepare_database.stat.exists == False
 
-  command: JAVA_HOME=/usr/java/jdk1.8.0_141-cloudera /opt/cloudera/cm-agent/bin/certmanager setup --configure-services
-  when: autotls.stat.exists == False
-
-- name: THP | Creates tuned profile directory
-  when: autotls.stat.exists == False
+- name: scm_prepare_database | Creates scm_prepare_database
+  when: scm_prepare_database.stat.exists == False
   file:
-    path: /etc/ansibleFlags/autotls
+    path: /etc/ansibleFlags/scm_prepare_database
     state: directory
     owner: root
     group: root
+
+- name: Systemd | Enable cloudera-scm-server
+  systemd:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  with_items:
+    - cloudera-scm-server

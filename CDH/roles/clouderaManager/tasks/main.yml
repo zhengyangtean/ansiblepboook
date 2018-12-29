@@ -24,10 +24,10 @@
 
 - name: autotls | autotls init
 
-  command: JAVA_HOME=/usr/java/jdk1.8.0_141-cloudera /opt/cloudera/cm-agent/bin/certmanager setup --configure-services
+  command: sudo JAVA_HOME=/usr/java/jdk1.8.0_141-cloudera /opt/cloudera/cm-agent/bin/certmanager setup --configure-services
   when: autotls.stat.exists == False
 
-- name: THP | Creates tuned profile directory
+- name: autotls | Creates autotls
   when: autotls.stat.exists == False
   file:
     path: /etc/ansibleFlags/autotls

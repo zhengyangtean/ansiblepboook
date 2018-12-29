@@ -22,7 +22,7 @@
   register: scm_prepare_database
 
 - name: scm_prepare_database | scm_prepare_database init
-  command: 'echo "scm" | sudo /opt/cloudera/cm/schema/scm_prepare_database.sh postgresql scm scm'
+  command: "echo 'scm' | sudo /opt/cloudera/cm/schema/scm_prepare_database.sh postgresql scm scm"
   when: scm_prepare_database.stat.exists == False
 
 - name: scm_prepare_database | Creates scm_prepare_database

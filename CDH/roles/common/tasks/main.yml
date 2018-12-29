@@ -115,6 +115,7 @@
       - ntp # Network Time Protocol Optimization
       - numactl
       - firewalld
+      - python-pip
 
 - name: Systemd | Enable packagesname
   systemd:
@@ -140,4 +141,7 @@
   selinux:
     policy: targeted
     state: permissive
+
+- pip:
+    name: psycopg2==2.7.5
 

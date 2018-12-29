@@ -20,23 +20,29 @@
 
 - lineinfile:
     path: /var/lib/pgsql/data/pg_hba.conf
-    insertbefore: 'host    all             all             127.0.0.1/32            ident'
+    regexp: 'host    all             all             127.0.0.1/32            ident'
     line: 'host    all             all             127.0.0.1/32            md5'
-    create: yes
 
-- lineinfile:
+- name: postgresql | allow remote access
+  lineinfile:
     path: /var/lib/pgsql/data/postgresql.conf
     line: "listen_addresses = '*'"
-    create: yes
 
+- name: postgresql | optimising config
+  lineinfile: 
+    dest: /var/lib/pgsql/data/postgresql.conf
+    line: '{{ item }}'
+  with_items:
+    - 'shared_buffers = 256MB'
+    - 'wal_buffers = 8MB'
+    - 'checkpoint_segments = 16' 
+    - 'checkpoint_completion_target = 0.9' 
 
 - name: restart service postgresql on centos
   when: postgresql_init.stat.exists == False
   systemd:
     state: restarted
     name: postgresql
-
-
 
 - name: THP | Creates postgresql_initdirectory
   when: postgresql_init.stat.exists == False
@@ -46,9 +52,7 @@
     owner: root
     group: root
 
-
-
-- name: Systemd | Enable packagesname
+- name: Systemd | Enable postgresql
   systemd:
     name: "{{ item }}"
     state: started
@@ -56,3 +60,95 @@
   with_items:
     - postgresql
 
+- name: postgresql_db | create tables
+  become: true
+  become_user: postgres
+  postgresql_db:
+    name: "{{ item }}"
+  with_items:
+    - scm
+    - amon
+    - rman
+    - hue
+    - metastore
+    - oozie
+
+- name: postgresql_user | create scm user
+  become: true
+  become_user: postgres
+  postgresql_user:
+    db: scm
+    name: scm
+    password: scm
+    expires: infinity
+
+- name: postgresql_user | create amon user
+  become: true
+  become_user: postgres
+  postgresql_user:
+    db: amon
+    name: amon
+    password: amon
+    expires: infinity
+
+- name: postgresql_user | create rman user
+  become: true
+  become_user: postgres
+  postgresql_user:
+    db: rman
+    name: rman
+    password: rman
+    expires: infinity
+
+- name: postgresql_user | create hue user
+  become: true
+  become_user: postgres
+  postgresql_user:
+    db: hue
+    name: hue
+    password: hue
+    expires: infinity
+
+- name: postgresql_user | create metastore user
+  become: true
+  become_user: postgres
+  postgresql_user:
+    db: metastore
+    name: hive
+    password: hive
+    expires: infinity
+
+
+- name: postgresql_user | create oozie user
+  become: true
+  become_user: postgres
+  postgresql_user:
+    db: oozie
+    name: oozie
+    password: oozie
+    expires: infinity
+
+- name: postgresql | postgresql standard_conforming_strings?
+  stat:
+    path: /etc/ansibleFlags/standard_conforming_strings
+  register: standard_conforming_strings
+
+- name: Testing DB to make sure it is available
+  become: true
+  become_user: postgres
+  command: "psql -U postgres -c 'ALTER DATABASE {{ item }} SET standard_conforming_strings=off;'"
+  with_items:
+    - metastore
+    - oozie
+  when: standard_conforming_strings.stat.exists == False
+
+- name: postgres | Creates standard_conforming_strings
+  when: postgresql_init.stat.exists == False
+  file:
+    path: /etc/ansibleFlags/standard_conforming_strings
+    state: directory
+    owner: root
+    group: root
+
+
+  
